@@ -1,12 +1,12 @@
 <?php
 
-namespace VendorName\Skeleton\Commands;
+namespace Ziming\FilamentOhDear\Commands;
 
 use Illuminate\Console\Command;
 
-class SkeletonCommand extends Command
+class FilamentOhDearCommand extends Command
 {
-    public $signature = 'skeleton';
+    public $signature = 'filament-oh-dear';
 
     public $description = 'My command';
 
