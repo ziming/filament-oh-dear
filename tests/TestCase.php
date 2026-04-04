@@ -2,36 +2,32 @@
 
 namespace Ziming\FilamentOhDear\Tests;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
 use Orchestra\Testbench\TestCase as Orchestra;
+use Workbench\App\Providers\AdminPanelProvider;
 use Ziming\FilamentOhDear\FilamentOhDearServiceProvider;
 
 class TestCase extends Orchestra
 {
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        Factory::guessFactoryNamesUsing(
-            fn (string $modelName) => 'Ziming\\FilamentOhDear\\Database\\Factories\\'.class_basename($modelName).'Factory'
-        );
-    }
+    protected $enablesPackageDiscoveries = true;
 
     protected function getPackageProviders($app)
     {
         return [
             FilamentOhDearServiceProvider::class,
+            AdminPanelProvider::class,
         ];
     }
 
     public function getEnvironmentSetUp($app)
     {
+        config()->set('app.key', 'base64:QKFnPAa4wUuPxcb6aYjYzeJCG16ZKTBxBxWv2t6Ktno=');
+        config()->set('cache.default', 'array');
+        config()->set('session.driver', 'array');
         config()->set('database.default', 'testing');
-
-        /*
-         foreach (\Illuminate\Support\Facades\File::allFiles(__DIR__ . '/../database/migrations') as $migration) {
-            (include $migration->getRealPath())->up();
-         }
-         */
+        config()->set('database.connections.testing', [
+            'driver' => 'sqlite',
+            'database' => ':memory:',
+            'prefix' => '',
+        ]);
     }
 }
