@@ -5,7 +5,7 @@
 [![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/ziming/filament-oh-dear/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/ziming/filament-oh-dear/actions?query=workflow%3A%22Fix+PHP+code+style+issues%22+branch%3Amain)
 [![Total Downloads](https://img.shields.io/packagist/dt/ziming/filament-oh-dear.svg?style=flat-square)](https://packagist.org/packages/ziming/filament-oh-dear)
 
-Read-only Oh Dear insights for Filament 5 panels. The plugin renders remote Oh Dear monitor data directly from the API, caches responses through Laravel, and avoids local sync tables or CRUD flows.
+Read-only Oh Dear insights for Filament 4 and 5 panels. The plugin renders remote Oh Dear monitor data directly from the API, caches responses through Laravel, and avoids local sync tables or CRUD flows.
 
 ## Features
 
@@ -90,7 +90,7 @@ The command checks:
 ## Support Matrix
 
 - PHP: `^8.4`
-- Filament: `^5`
+- Filament: `^4 | ^5`
 - Laravel / illuminate contracts: `^12 | ^13`
 - Oh Dear SDK: `^4`
 
