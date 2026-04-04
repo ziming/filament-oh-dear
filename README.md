@@ -7,6 +7,15 @@
 
 Read-only Oh Dear insights for Filament 4 and 5 panels. The plugin renders remote Oh Dear monitor data directly from the API, caches responses through Laravel, and avoids local sync tables or CRUD flows.
 
+This package is still very much in progress, when it is ready I will tag a 1.0
+
+## Support Us
+
+You can donate to my github sponsor or use my referral link for Oh Dear so I get a small reward if you become a paid customer in the future. This comes at no extra cost to you and helps support my open source work.
+
+https://ohdear.app/?via=filament-oh-dear
+
+
 ## Features
 
 - `Overview` page with scoped monitor stats and a short needs-attention list
