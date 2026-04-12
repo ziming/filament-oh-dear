@@ -2,6 +2,7 @@
 
 namespace Ziming\FilamentOhDear\Support;
 
+use Illuminate\Support\Arr;
 use Ziming\FilamentOhDear\ViewModels\BrokenLinkViewModel;
 use Ziming\FilamentOhDear\ViewModels\CertificateCheckViewModel;
 use Ziming\FilamentOhDear\ViewModels\CertificateHealthViewModel;
@@ -41,10 +42,7 @@ class ViewModelHydrator
             name: (string) $payload['name'],
             email: (string) $payload['email'],
             photoUrl: (string) $payload['photo_url'],
-            teams: array_map(
-                fn (array $team): TeamViewModel => $this->hydrateTeam($team),
-                $payload['teams'] ?? [],
-            ),
+            teams: array_map(fn (array $team): TeamViewModel => $this->hydrateTeam($team), $this->arrayList($payload, 'teams')),
         );
     }
 
@@ -105,7 +103,7 @@ class ViewModelHydrator
      */
     public function hydrateMonitor(array $payload): MonitorViewModel
     {
-        $checks = collect($payload['checks'] ?? [])
+        $checks = collect($this->arrayList($payload, 'checks'))
             ->map(fn (array $check): CheckSummaryViewModel => $this->hydrateCheckSummary($check))
             ->keyBy(fn (CheckSummaryViewModel $check): string => $check->type)
             ->all();
@@ -179,10 +177,7 @@ class ViewModelHydrator
             issuer: isset($payload['issuer']) && is_string($payload['issuer']) ? $payload['issuer'] : null,
             validFrom: isset($payload['valid_from']) && is_string($payload['valid_from']) ? $payload['valid_from'] : null,
             validUntil: isset($payload['valid_until']) && is_string($payload['valid_until']) ? $payload['valid_until'] : null,
-            checks: array_map(
-                fn (array $check): CertificateCheckViewModel => $this->hydrateCertificateCheck($check),
-                $payload['checks'] ?? [],
-            ),
+            checks: array_map(fn (array $check): CertificateCheckViewModel => $this->hydrateCertificateCheck($check), $this->arrayList($payload, 'checks')),
         );
     }
 
@@ -231,8 +226,8 @@ class ViewModelHydrator
         return new PerformanceMetricViewModel(
             timestamp: (string) $payload['timestamp'],
             latencyMs: (float) $payload['latency_ms'],
-            uptimePercentage: isset($payload['uptime_percentage']) ? (float) $payload['uptime_percentage'] : null,
-            downtimePercentage: isset($payload['downtime_percentage']) ? (float) $payload['downtime_percentage'] : null,
+            uptimePercentage: isset($payload['uptime_percentage']) && is_numeric($payload['uptime_percentage']) ? (float) $payload['uptime_percentage'] : null,
+            downtimePercentage: isset($payload['downtime_percentage']) && is_numeric($payload['downtime_percentage']) ? (float) $payload['downtime_percentage'] : null,
         );
     }
 
@@ -256,7 +251,7 @@ class ViewModelHydrator
     public function hydrateBrokenLink(array $payload): BrokenLinkViewModel
     {
         return new BrokenLinkViewModel(
-            statusCode: isset($payload['status_code']) ? (int) $payload['status_code'] : null,
+            statusCode: isset($payload['status_code']) && is_numeric($payload['status_code']) ? (int) $payload['status_code'] : null,
             crawledUrl: (string) $payload['crawled_url'],
             foundOnUrl: (string) $payload['found_on_url'],
             linkText: (string) $payload['link_text'],
@@ -288,5 +283,17 @@ class ViewModelHydrator
             endedAt: isset($payload['ended_at']) && is_string($payload['ended_at']) ? $payload['ended_at'] : null,
             notes: isset($payload['notes']) && is_string($payload['notes']) ? $payload['notes'] : null,
         );
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     * @return array<int, array<string, mixed>>
+     */
+    protected function arrayList(array $payload, string $key): array
+    {
+        return array_values(array_filter(
+            Arr::wrap($payload[$key] ?? []),
+            static fn (mixed $item): bool => is_array($item),
+        ));
     }
 }
