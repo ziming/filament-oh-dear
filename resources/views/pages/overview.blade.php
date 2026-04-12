@@ -15,29 +15,7 @@
             'message' => 'Unable to load the overview right now: ' . $this->loadError,
         ])
     @else
-        <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-gray-900">
-                <p class="text-sm text-gray-500 dark:text-gray-400">Total monitors</p>
-                <p class="mt-2 text-3xl font-semibold text-gray-950 dark:text-white">{{ $this->overview['total_monitors'] ?? 0 }}</p>
-            </div>
-
-            <div class="rounded-2xl border border-emerald-200 bg-emerald-50 p-6 shadow-sm dark:border-emerald-500/30 dark:bg-emerald-500/10">
-                <p class="text-sm text-emerald-700 dark:text-emerald-200">Healthy monitors</p>
-                <p class="mt-2 text-3xl font-semibold text-emerald-900 dark:text-emerald-50">{{ $this->overview['healthy_monitors'] ?? 0 }}</p>
-            </div>
-
-            <div class="rounded-2xl border border-amber-200 bg-amber-50 p-6 shadow-sm dark:border-amber-500/30 dark:bg-amber-500/10">
-                <p class="text-sm text-amber-700 dark:text-amber-200">Active issues</p>
-                <p class="mt-2 text-3xl font-semibold text-amber-900 dark:text-amber-50">{{ $this->overview['monitors_with_active_issues'] ?? 0 }}</p>
-            </div>
-
-            <div class="rounded-2xl border border-rose-200 bg-rose-50 p-6 shadow-sm dark:border-rose-500/30 dark:bg-rose-500/10">
-                <p class="text-sm text-rose-700 dark:text-rose-200">Certificate issues</p>
-                <p class="mt-2 text-3xl font-semibold text-rose-900 dark:text-rose-50">{{ $this->overview['certificate_issues'] ?? 0 }}</p>
-            </div>
-        </div>
-
-        <section class="mt-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-gray-900">
+        <section class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-gray-900">
             <div class="flex items-center justify-between gap-4">
                 <div>
                     <h2 class="text-lg font-semibold text-gray-950 dark:text-white">Needs attention</h2>
