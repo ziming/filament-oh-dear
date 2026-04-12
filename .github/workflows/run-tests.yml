@@ -28,14 +28,12 @@ jobs:
       fail-fast: true
       matrix:
         php: [8.4]
-        laravel: [13.*, 12.*]
+        laravel: [13.*]
         filament: [5.*, 4.*]
         stability: [prefer-stable]
         include:
           - laravel: 13.*
             testbench: 11.*
-          - laravel: 12.*
-            testbench: 10.*
 
     name: P${{ matrix.php }} - L${{ matrix.laravel }} - F${{ matrix.filament }} - ${{ matrix.stability }}
 
