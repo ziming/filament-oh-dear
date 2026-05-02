@@ -15,25 +15,29 @@
             'message' => 'Unable to load the overview right now: ' . $this->loadError,
         ])
     @else
-        <section class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-gray-900">
-            <div class="flex items-center justify-between gap-4">
-                <div>
-                    <h2 class="text-lg font-semibold text-gray-950 dark:text-white">Needs attention</h2>
-                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Monitors with warnings, failures, or certificate issues.</p>
-                </div>
-
-                <a
-                    class="text-sm font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400"
+        <x-filament::section
+            description="Monitors with warnings, failures, or certificate issues."
+            heading="Needs attention"
+        >
+            <x-slot name="afterHeader">
+                <x-filament::link
+                    color="primary"
                     href="{{ \Ziming\FilamentOhDear\Pages\MonitorsPage::getUrl() }}"
                 >
                     View all monitors
-                </a>
-            </div>
+                </x-filament::link>
+            </x-slot>
 
             @if (empty($this->overview['needs_attention']))
-                <p class="mt-4 text-sm text-gray-500 dark:text-gray-400">All scoped monitors currently look healthy.</p>
+                <x-filament::empty-state
+                    compact
+                    description="No scoped monitors currently need attention."
+                    heading="All scoped monitors currently look healthy."
+                    icon="heroicon-m-check-circle"
+                    icon-color="success"
+                />
             @else
-                <div class="mt-4 overflow-hidden rounded-xl border border-gray-200 dark:border-white/10">
+                <div class="overflow-hidden rounded-xl border border-gray-200 dark:border-white/10">
                     <table class="min-w-full divide-y divide-gray-200 text-sm dark:divide-white/10">
                         <thead class="bg-gray-50 dark:bg-white/5">
                             <tr>
@@ -46,22 +50,20 @@
                             @foreach ($this->overview['needs_attention'] as $monitor)
                                 <tr>
                                     <td class="px-4 py-3">
-                                        <a class="font-medium text-gray-950 hover:text-primary-600 dark:text-white dark:hover:text-primary-400" href="{{ \Ziming\FilamentOhDear\Pages\ViewMonitorPage::getUrl(['monitor' => $monitor['id']]) }}">
+                                        <x-filament::link
+                                            color="gray"
+                                            href="{{ \Ziming\FilamentOhDear\Pages\ViewMonitorPage::getUrl(['monitor' => $monitor['id']]) }}"
+                                            weight="medium"
+                                        >
                                             {{ $monitor['display_name'] }}
-                                        </a>
+                                        </x-filament::link>
                                         <p class="text-xs text-gray-500 dark:text-gray-400">{{ $monitor['url'] }}</p>
                                     </td>
                                     <td class="px-4 py-3">
-                                        <span class="inline-flex rounded-full px-2.5 py-1 text-xs font-medium
-                                            @class([
-                                                'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-100' => $monitor['result_color'] === 'success',
-                                                'bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-100' => $monitor['result_color'] === 'warning',
-                                                'bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-100' => $monitor['result_color'] === 'danger',
-                                                'bg-gray-100 text-gray-700 dark:bg-white/10 dark:text-gray-200' => $monitor['result_color'] === 'gray',
-                                            ])
-                                        ">
-                                            {{ $monitor['result_label'] }}
-                                        </span>
+                                        @include('filament-oh-dear::partials.status-badge', [
+                                            'color' => $monitor['result_color'],
+                                            'label' => $monitor['result_label'],
+                                        ])
                                     </td>
                                     <td class="px-4 py-3 text-gray-600 dark:text-gray-300">{{ $monitor['issue_summary'] }}</td>
                                 </tr>
@@ -70,6 +72,6 @@
                     </table>
                 </div>
             @endif
-        </section>
+        </x-filament::section>
     @endif
 </x-filament-panels::page>
