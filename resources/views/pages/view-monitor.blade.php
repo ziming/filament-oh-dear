@@ -41,12 +41,29 @@
             </div>
         @endif
 
-        <section class="mt-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-gray-900">
+        <x-filament::section
+            class="mt-6"
+            heading="Monitor summary"
+        >
+            <x-slot name="afterHeader">
+                @include('filament-oh-dear::partials.status-badge', [
+                    'color' => $monitor['result_color'],
+                    'label' => $monitor['result_label'],
+                ])
+            </x-slot>
+
             <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                 <div>
                     <p class="text-sm text-gray-500 dark:text-gray-400">Monitor</p>
                     <p class="mt-1 text-lg font-semibold text-gray-950 dark:text-white">{{ $monitor['display_name'] }}</p>
-                    <p class="text-sm text-gray-500 dark:text-gray-400">{{ $monitor['url'] }}</p>
+                    <x-filament::link
+                        color="gray"
+                        href="{{ $monitor['url'] }}"
+                        rel="noopener noreferrer"
+                        target="_blank"
+                    >
+                        {{ $monitor['url'] }}
+                    </x-filament::link>
                 </div>
                 <div>
                     <p class="text-sm text-gray-500 dark:text-gray-400">Type</p>
@@ -64,44 +81,37 @@
                     <p class="text-sm text-gray-500 dark:text-gray-400">Last run</p>
                     <p class="mt-1 font-medium text-gray-950 dark:text-white">{{ $monitor['latest_run_display'] }}</p>
                 </div>
-                <div>
-                    <p class="text-sm text-gray-500 dark:text-gray-400">Overall result</p>
-                    <p class="mt-1 font-medium text-gray-950 dark:text-white">{{ $monitor['result_label'] }}</p>
-                </div>
             </div>
-        </section>
+        </x-filament::section>
 
         <div class="mt-6 grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
-            <section class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-gray-900">
-                <h2 class="text-lg font-semibold text-gray-950 dark:text-white">Current check summaries</h2>
-
-                <div class="mt-4 grid gap-4 md:grid-cols-2">
+            <x-filament::section heading="Current check summaries">
+                <div class="grid gap-4 md:grid-cols-2">
                     @foreach ($this->detail['check_summaries'] as $summary)
-                        <div class="rounded-xl border border-gray-200 p-4 dark:border-white/10">
-                            <div class="flex items-center justify-between gap-3">
-                                <h3 class="font-medium text-gray-950 dark:text-white">{{ $summary['label'] }}</h3>
-                                <span class="inline-flex rounded-full px-2.5 py-1 text-xs font-medium
-                                    @class([
-                                        'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-100' => $summary['color'] === 'success',
-                                        'bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-100' => $summary['color'] === 'warning',
-                                        'bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-100' => $summary['color'] === 'danger',
-                                        'bg-gray-100 text-gray-700 dark:bg-white/10 dark:text-gray-200' => $summary['color'] === 'gray',
-                                    ])
-                                ">
-                                    {{ $summary['result'] ?? 'unknown' }}
-                                </span>
-                            </div>
+                        <x-filament::section
+                            compact
+                            :heading="$summary['label']"
+                            secondary
+                        >
+                            <x-slot name="afterHeader">
+                                @include('filament-oh-dear::partials.status-badge', [
+                                    'color' => $summary['color'],
+                                    'label' => $summary['result'] ?? 'unknown',
+                                ])
+                            </x-slot>
+
                             <p class="mt-3 text-sm leading-6 text-gray-600 dark:text-gray-300">{{ $summary['display_summary'] }}</p>
-                        </div>
+                        </x-filament::section>
                     @endforeach
                 </div>
-            </section>
+            </x-filament::section>
 
-            <section class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-gray-900">
-                <h2 class="text-lg font-semibold text-gray-950 dark:text-white">Latency (24h)</h2>
-
+            <x-filament::section heading="Latency (24h)">
                 @if ($chartPoints)
-                    <div class="mt-4 rounded-xl border border-gray-200 p-4 dark:border-white/10">
+                    <x-filament::section
+                        compact
+                        secondary
+                    >
                         <svg viewBox="0 0 100 100" class="h-48 w-full" preserveAspectRatio="none" aria-hidden="true">
                             <polyline
                                 fill="none"
@@ -111,43 +121,41 @@
                                 class="text-primary-500"
                             />
                         </svg>
-                    </div>
+                    </x-filament::section>
 
                     <div class="mt-4 grid gap-3 text-sm md:grid-cols-3">
-                        <div class="rounded-xl bg-gray-50 p-3 dark:bg-white/5">
-                            <p class="text-gray-500 dark:text-gray-400">Avg</p>
+                        <x-filament::section compact heading="Avg" secondary>
                             <p class="mt-1 font-semibold text-gray-950 dark:text-white">{{ round($metricValues->avg(), 2) }} ms</p>
-                        </div>
-                        <div class="rounded-xl bg-gray-50 p-3 dark:bg-white/5">
-                            <p class="text-gray-500 dark:text-gray-400">Min</p>
+                        </x-filament::section>
+                        <x-filament::section compact heading="Min" secondary>
                             <p class="mt-1 font-semibold text-gray-950 dark:text-white">{{ round($metricValues->min(), 2) }} ms</p>
-                        </div>
-                        <div class="rounded-xl bg-gray-50 p-3 dark:bg-white/5">
-                            <p class="text-gray-500 dark:text-gray-400">Max</p>
+                        </x-filament::section>
+                        <x-filament::section compact heading="Max" secondary>
                             <p class="mt-1 font-semibold text-gray-950 dark:text-white">{{ round($metricValues->max(), 2) }} ms</p>
-                        </div>
+                        </x-filament::section>
                     </div>
                 @else
-                    <p class="mt-4 text-sm text-gray-500 dark:text-gray-400">No performance metrics are available for this monitor type yet.</p>
+                    <x-filament::empty-state
+                        compact
+                        description="No latency samples were returned for this monitor type."
+                        heading="No performance metrics are available yet."
+                        icon="heroicon-m-chart-bar"
+                    />
                 @endif
-            </section>
+            </x-filament::section>
         </div>
 
         <div class="mt-6 grid gap-6 xl:grid-cols-2">
-            <section class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-gray-900">
-                <h2 class="text-lg font-semibold text-gray-950 dark:text-white">Certificate health</h2>
-
+            <x-filament::section heading="Certificate health">
                 @if ($this->detail['certificate_health'])
                     @php($certificate = $this->detail['certificate_health'])
                     <div class="mt-4 grid gap-4 md:grid-cols-2">
-                        <div class="rounded-xl bg-gray-50 p-4 dark:bg-white/5">
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Issuer</p>
+                        <x-filament::section compact heading="Issuer" secondary>
                             <p class="mt-1 font-medium text-gray-950 dark:text-white">{{ $certificate['issuer'] ?? 'Unknown' }}</p>
-                        </div>
-                        <div class="rounded-xl bg-gray-50 p-4 dark:bg-white/5">
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Valid until</p>
+                        </x-filament::section>
+                        <x-filament::section compact heading="Valid until" secondary>
                             <p class="mt-1 font-medium text-gray-950 dark:text-white">{{ $certificate['valid_until'] ?? 'Unknown' }}</p>
-                        </div>
+                        </x-filament::section>
                     </div>
 
                     <p class="mt-4 text-sm text-gray-600 dark:text-gray-300">{{ $certificate['summary'] }}</p>
@@ -155,32 +163,44 @@
                     @if (! empty($certificate['checks']))
                         <div class="mt-4 space-y-2 text-sm">
                             @foreach ($certificate['checks'] as $check)
-                                <div class="flex items-start justify-between gap-4 rounded-xl border border-gray-200 px-4 py-3 dark:border-white/10">
-                                    <div>
+                                <x-filament::section compact secondary>
+                                    <x-slot name="afterHeader">
+                                        @include('filament-oh-dear::partials.status-badge', [
+                                            'color' => $check['passed'] ? 'success' : 'danger',
+                                            'label' => $check['passed'] ? 'Pass' : 'Fail',
+                                        ])
+                                    </x-slot>
+
+                                    <div class="space-y-1">
                                         <p class="font-medium text-gray-950 dark:text-white">{{ $check['label'] }}</p>
                                         @if ($check['message'])
                                             <p class="text-gray-500 dark:text-gray-400">{{ $check['message'] }}</p>
                                         @endif
                                     </div>
-                                    <span class="font-medium {{ $check['passed'] ? 'text-emerald-600 dark:text-emerald-300' : 'text-rose-600 dark:text-rose-300' }}">
-                                        {{ $check['passed'] ? 'Pass' : 'Fail' }}
-                                    </span>
-                                </div>
+                                </x-filament::section>
                             @endforeach
                         </div>
                     @endif
                 @else
-                    <p class="mt-4 text-sm text-gray-500 dark:text-gray-400">No certificate health data is available for this monitor.</p>
+                    <x-filament::empty-state
+                        compact
+                        description="This monitor did not return any certificate health details."
+                        heading="No certificate health data is available."
+                        icon="heroicon-m-shield-check"
+                    />
                 @endif
-            </section>
+            </x-filament::section>
 
-            <section class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-gray-900">
-                <h2 class="text-lg font-semibold text-gray-950 dark:text-white">Broken links</h2>
-
+            <x-filament::section heading="Broken links">
                 @if (empty($this->detail['broken_links']))
-                    <p class="mt-4 text-sm text-gray-500 dark:text-gray-400">No broken links were returned for this monitor.</p>
+                    <x-filament::empty-state
+                        compact
+                        description="The Oh Dear API did not return any broken link records for this monitor."
+                        heading="No broken links were returned."
+                        icon="heroicon-m-link"
+                    />
                 @else
-                    <div class="mt-4 overflow-hidden rounded-xl border border-gray-200 dark:border-white/10">
+                    <div class="overflow-hidden rounded-xl border border-gray-200 dark:border-white/10">
                         <table class="min-w-full divide-y divide-gray-200 text-sm dark:divide-white/10">
                             <thead class="bg-gray-50 dark:bg-white/5">
                                 <tr>
@@ -192,28 +212,57 @@
                             <tbody class="divide-y divide-gray-200 bg-white dark:divide-white/10 dark:bg-gray-900">
                                 @foreach ($this->detail['broken_links'] as $link)
                                     <tr>
-                                        <td class="px-4 py-3 text-gray-600 dark:text-gray-300">{{ $link['status_code'] ?? 'n/a' }}</td>
+                                        <td class="px-4 py-3">
+                                            @include('filament-oh-dear::partials.status-badge', [
+                                                'color' => filled($link['status_code'] ?? null) ? 'danger' : 'gray',
+                                                'label' => $link['status_code'] ?? 'n/a',
+                                            ])
+                                        </td>
                                         <td class="px-4 py-3">
                                             <p class="font-medium text-gray-950 dark:text-white">{{ $link['link_text'] }}</p>
-                                            <p class="text-xs text-gray-500 dark:text-gray-400">{{ $link['crawled_url'] }}</p>
+                                            <x-filament::link
+                                                color="gray"
+                                                href="{{ $link['crawled_url'] }}"
+                                                rel="noopener noreferrer"
+                                                size="sm"
+                                                target="_blank"
+                                            >
+                                                {{ $link['crawled_url'] }}
+                                            </x-filament::link>
                                         </td>
-                                        <td class="px-4 py-3 text-gray-600 dark:text-gray-300">{{ $link['found_on_url'] }}</td>
+                                        <td class="px-4 py-3">
+                                            <x-filament::link
+                                                color="gray"
+                                                href="{{ $link['found_on_url'] }}"
+                                                rel="noopener noreferrer"
+                                                size="sm"
+                                                target="_blank"
+                                            >
+                                                {{ $link['found_on_url'] }}
+                                            </x-filament::link>
+                                        </td>
                                     </tr>
                                 @endforeach
                             </tbody>
                         </table>
                     </div>
                 @endif
-            </section>
+            </x-filament::section>
         </div>
 
-        <section class="mt-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-gray-900">
-            <h2 class="text-lg font-semibold text-gray-950 dark:text-white">Recent downtime (30d)</h2>
-
+        <x-filament::section
+            class="mt-6"
+            heading="Recent downtime (30d)"
+        >
             @if (empty($this->detail['downtime_periods']))
-                <p class="mt-4 text-sm text-gray-500 dark:text-gray-400">No downtime was returned for the last 30 days.</p>
+                <x-filament::empty-state
+                    compact
+                    description="No downtime periods were returned for the last 30 days."
+                    heading="No recent downtime was reported."
+                    icon="heroicon-m-clock"
+                />
             @else
-                <div class="mt-4 overflow-hidden rounded-xl border border-gray-200 dark:border-white/10">
+                <div class="overflow-hidden rounded-xl border border-gray-200 dark:border-white/10">
                     <table class="min-w-full divide-y divide-gray-200 text-sm dark:divide-white/10">
                         <thead class="bg-gray-50 dark:bg-white/5">
                             <tr>
@@ -234,6 +283,6 @@
                     </table>
                 </div>
             @endif
-        </section>
+        </x-filament::section>
     @endif
 </x-filament-panels::page>
