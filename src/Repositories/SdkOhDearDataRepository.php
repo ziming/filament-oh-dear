@@ -3,6 +3,7 @@
 namespace Ziming\FilamentOhDear\Repositories;
 
 use Carbon\CarbonInterface;
+use OhDear\PhpSdk\Enums\UptimeMetricsSplit;
 use OhDear\PhpSdk\Enums\CheckType;
 use OhDear\PhpSdk\OhDear;
 use Ziming\FilamentOhDear\Exceptions\MissingApiTokenException;
@@ -64,15 +65,15 @@ class SdkOhDearDataRepository implements OhDearDataRepository
         return match ($monitorType) {
             'http' => array_map(
                 fn ($metric): PerformanceMetricViewModel => $this->normalizer->normalizeHttpMetric($metric),
-                $client->httpUptimeMetrics($monitorId, $startDate, $endDate),
+                $client->httpUptimeMetrics($monitorId, $startDate, $endDate, UptimeMetricsSplit::Hour),
             ),
             'ping' => array_map(
                 fn ($metric): PerformanceMetricViewModel => $this->normalizer->normalizePingMetric($metric),
-                $client->pingUptimeMetrics($monitorId, $startDate, $endDate),
+                $client->pingUptimeMetrics($monitorId, $startDate, $endDate, UptimeMetricsSplit::Hour),
             ),
             'tcp' => array_map(
                 fn ($metric): PerformanceMetricViewModel => $this->normalizer->normalizeTcpMetric($metric),
-                $client->tcpUptimeMetrics($monitorId, $startDate, $endDate),
+                $client->tcpUptimeMetrics($monitorId, $startDate, $endDate, UptimeMetricsSplit::Hour),
             ),
             default => [],
         };
