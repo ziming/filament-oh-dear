@@ -3,8 +3,8 @@
 namespace Ziming\FilamentOhDear\Repositories;
 
 use Carbon\CarbonInterface;
-use OhDear\PhpSdk\Enums\UptimeMetricsSplit;
 use OhDear\PhpSdk\Enums\CheckType;
+use OhDear\PhpSdk\Enums\UptimeMetricsSplit;
 use OhDear\PhpSdk\OhDear;
 use Ziming\FilamentOhDear\Exceptions\MissingApiTokenException;
 use Ziming\FilamentOhDear\Support\OhDearDataNormalizer;
