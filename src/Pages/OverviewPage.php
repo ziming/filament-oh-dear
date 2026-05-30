@@ -3,7 +3,6 @@
 namespace Ziming\FilamentOhDear\Pages;
 
 use Throwable;
-use Ziming\FilamentOhDear\Widgets\OverviewStatsWidget;
 
 class OverviewPage extends BaseOhDearPage
 {
@@ -39,17 +38,21 @@ class OverviewPage extends BaseOhDearPage
         }
     }
 
+    /**
+     * @return array<int, class-string>
+     */
     protected function getHeaderWidgets(): array
     {
         if ($this->requiresSetup || $this->loadError) {
             return [];
         }
 
-        return [
-            OverviewStatsWidget::class,
-        ];
+        return $this->settings()->overviewWidgets;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getWidgetData(): array
     {
         return [

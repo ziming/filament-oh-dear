@@ -1,5 +1,7 @@
 <?php
 
+use Ziming\FilamentOhDear\Support\OhDearSettings;
+
 return [
     'api_token' => env('OH_DEAR_API_TOKEN'),
     'team_id' => env('OH_DEAR_TEAM_ID') !== null ? (int) env('OH_DEAR_TEAM_ID') : null,
@@ -15,5 +17,21 @@ return [
         'group' => 'Oh Dear',
         'icon' => 'heroicon-o-signal',
         'sort' => 50,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Widgets
+    |--------------------------------------------------------------------------
+    |
+    | Override the widgets rendered on each page. Set a value to null to use
+    | the package defaults, or pass an array of widget class names to fully
+    | replace the list. Per-panel plugin calls (overviewWidgets / addOverviewWidgets /
+    | removeOverviewWidgets and the monitor equivalents) take precedence.
+    |
+    */
+    'widgets' => [
+        'overview' => OhDearSettings::defaultOverviewWidgets(),
+        'monitor' => OhDearSettings::defaultMonitorWidgets(),
     ],
 ];

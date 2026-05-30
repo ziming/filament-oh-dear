@@ -33,6 +33,22 @@ final class FilamentOhDearPlugin implements Plugin
 
     protected int|Closure|null $navigationSort = null;
 
+    protected array|Closure|null $overviewWidgets = null;
+
+    /** @var array<int, class-string> */
+    protected array $overviewWidgetsToAppend = [];
+
+    /** @var array<int, class-string> */
+    protected array $overviewWidgetsToRemove = [];
+
+    protected array|Closure|null $monitorWidgets = null;
+
+    /** @var array<int, class-string> */
+    protected array $monitorWidgetsToAppend = [];
+
+    /** @var array<int, class-string> */
+    protected array $monitorWidgetsToRemove = [];
+
     public static function make(): static
     {
         return new self;
@@ -94,6 +110,90 @@ final class FilamentOhDearPlugin implements Plugin
         return $this;
     }
 
+    /**
+     * Replace the default list of widgets shown on the Overview page.
+     *
+     * @param  array<int, class-string>|Closure|null  $widgets
+     */
+    public function overviewWidgets(array|Closure|null $widgets): static
+    {
+        $this->overviewWidgets = $widgets;
+
+        return $this;
+    }
+
+    /**
+     * Append widgets to the existing Overview widget list.
+     *
+     * @param  array<int, class-string>|class-string  $widgets
+     */
+    public function addOverviewWidgets(array|string $widgets): static
+    {
+        $this->overviewWidgetsToAppend = [
+            ...$this->overviewWidgetsToAppend,
+            ...(array) $widgets,
+        ];
+
+        return $this;
+    }
+
+    /**
+     * Remove widgets from the Overview widget list.
+     *
+     * @param  array<int, class-string>|class-string  $widgets
+     */
+    public function removeOverviewWidgets(array|string $widgets): static
+    {
+        $this->overviewWidgetsToRemove = [
+            ...$this->overviewWidgetsToRemove,
+            ...(array) $widgets,
+        ];
+
+        return $this;
+    }
+
+    /**
+     * Replace the default list of widgets shown on the Monitor details page.
+     *
+     * @param  array<int, class-string>|Closure|null  $widgets
+     */
+    public function monitorWidgets(array|Closure|null $widgets): static
+    {
+        $this->monitorWidgets = $widgets;
+
+        return $this;
+    }
+
+    /**
+     * Append widgets to the existing Monitor widget list.
+     *
+     * @param  array<int, class-string>|class-string  $widgets
+     */
+    public function addMonitorWidgets(array|string $widgets): static
+    {
+        $this->monitorWidgetsToAppend = [
+            ...$this->monitorWidgetsToAppend,
+            ...(array) $widgets,
+        ];
+
+        return $this;
+    }
+
+    /**
+     * Remove widgets from the Monitor widget list.
+     *
+     * @param  array<int, class-string>|class-string  $widgets
+     */
+    public function removeMonitorWidgets(array|string $widgets): static
+    {
+        $this->monitorWidgetsToRemove = [
+            ...$this->monitorWidgetsToRemove,
+            ...(array) $widgets,
+        ];
+
+        return $this;
+    }
+
     public function getId(): string
     {
         return self::ID;
@@ -123,6 +223,18 @@ final class FilamentOhDearPlugin implements Plugin
             navigationGroup: $this->resolveString($this->navigationGroup) ?? $defaults->navigationGroup,
             navigationIcon: $this->resolveString($this->navigationIcon) ?? $defaults->navigationIcon,
             navigationSort: $this->resolveInt($this->navigationSort) ?? $defaults->navigationSort,
+            overviewWidgets: $this->resolveWidgetList(
+                $this->overviewWidgets,
+                $this->overviewWidgetsToAppend,
+                $this->overviewWidgetsToRemove,
+                $defaults->overviewWidgets,
+            ),
+            monitorWidgets: $this->resolveWidgetList(
+                $this->monitorWidgets,
+                $this->monitorWidgetsToAppend,
+                $this->monitorWidgetsToRemove,
+                $defaults->monitorWidgets,
+            ),
         );
     }
 
@@ -155,5 +267,27 @@ final class FilamentOhDearPlugin implements Plugin
             static fn (mixed $monitorId): ?int => is_numeric($monitorId) ? (int) $monitorId : null,
             $evaluated,
         )));
+    }
+
+    /**
+     * @param  array<int, class-string>  $append
+     * @param  array<int, class-string>  $remove
+     * @param  array<int, class-string>  $fallback
+     * @return array<int, class-string>
+     */
+    protected function resolveWidgetList(array|Closure|null $value, array $append, array $remove, array $fallback): array
+    {
+        $evaluated = $this->evaluate($value);
+
+        $base = is_array($evaluated)
+            ? array_values(array_filter(
+                $evaluated,
+                static fn (mixed $widget): bool => is_string($widget) && class_exists($widget),
+            ))
+            : $fallback;
+
+        $merged = array_values(array_unique([...$base, ...$append]));
+
+        return array_values(array_diff($merged, $remove));
     }
 }

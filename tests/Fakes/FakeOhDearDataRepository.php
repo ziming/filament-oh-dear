@@ -31,6 +31,11 @@ class FakeOhDearDataRepository implements OhDearDataRepository
         public ?CertificateHealthViewModel $certificateHealth = null,
         public array $brokenLinks = [],
         public array $downtime = [],
+        public array $mixedContent = [],
+        public ?array $latestLighthouseReport = null,
+        public array $applicationHealthChecks = [],
+        public array $maintenancePeriods = [],
+        public ?array $domain = null,
     ) {}
 
     public int $monitorCalls = 0;
@@ -81,5 +86,30 @@ class FakeOhDearDataRepository implements OhDearDataRepository
     public function downtime(OhDearSettings $settings, int $monitorId, CarbonInterface $start, CarbonInterface $end): array
     {
         return $this->downtime;
+    }
+
+    public function mixedContent(OhDearSettings $settings, int $monitorId): array
+    {
+        return $this->mixedContent;
+    }
+
+    public function latestLighthouseReport(OhDearSettings $settings, int $monitorId): ?array
+    {
+        return $this->latestLighthouseReport;
+    }
+
+    public function applicationHealthChecks(OhDearSettings $settings, int $monitorId): array
+    {
+        return $this->applicationHealthChecks;
+    }
+
+    public function maintenancePeriods(OhDearSettings $settings, int $monitorId): array
+    {
+        return $this->maintenancePeriods;
+    }
+
+    public function domain(OhDearSettings $settings, int $monitorId): ?array
+    {
+        return $this->domain;
     }
 }

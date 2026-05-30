@@ -5,6 +5,7 @@ namespace Ziming\FilamentOhDear\Repositories;
 use Carbon\CarbonInterface;
 use OhDear\PhpSdk\Enums\CheckType;
 use OhDear\PhpSdk\Enums\UptimeMetricsSplit;
+use OhDear\PhpSdk\Exceptions\OhDearException;
 use OhDear\PhpSdk\OhDear;
 use Ziming\FilamentOhDear\Exceptions\MissingApiTokenException;
 use Ziming\FilamentOhDear\Support\OhDearDataNormalizer;
@@ -100,6 +101,92 @@ class SdkOhDearDataRepository implements OhDearDataRepository
             fn ($downtime): DowntimePeriodViewModel => $this->normalizer->normalizeDowntime($downtime),
             $this->client($settings)->downtime($monitorId, $start->toDateTimeString(), $end->toDateTimeString()),
         );
+    }
+
+    public function mixedContent(OhDearSettings $settings, int $monitorId): array
+    {
+        return array_map(
+            static fn ($entry): array => [
+                'element_name' => $entry->elementName,
+                'mixed_content_url' => $entry->mixedContentUrl,
+                'found_on_url' => $entry->foundOnUrl,
+            ],
+            $this->client($settings)->mixedContent($monitorId),
+        );
+    }
+
+    public function latestLighthouseReport(OhDearSettings $settings, int $monitorId): ?array
+    {
+        try {
+            $report = $this->client($settings)->latestLighthouseReport($monitorId);
+        } catch (OhDearException $exception) {
+            if ($exception->response->status() === 404) {
+                return null;
+            }
+
+            throw $exception;
+        }
+
+        return [
+            'id' => $report->id,
+            'performance_score' => $report->performanceScore,
+            'accessibility_score' => $report->accessibilityScore,
+            'best_practices_score' => $report->bestPracticesScore,
+            'seo_score' => $report->seoScore,
+            'pwa_score' => $report->progressiveWebAppScore,
+            'first_contentful_paint_ms' => $report->firstContentfulPaintInMs,
+            'speed_index_ms' => $report->speedIndexInMs,
+            'largest_contentful_paint_ms' => $report->largestContentfulPaintInMs,
+            'time_to_interactive_ms' => $report->timeToInteractiveInMs,
+            'total_blocking_time_ms' => $report->totalBlockingTimeInMs,
+            'cumulative_layout_shift' => $report->cumulativeLayoutShift,
+            'created_at' => $report->createdAt,
+        ];
+    }
+
+    public function applicationHealthChecks(OhDearSettings $settings, int $monitorId): array
+    {
+        return array_map(
+            static fn ($check): array => [
+                'id' => $check->id,
+                'name' => $check->name,
+                'label' => $check->label,
+                'status' => $check->status,
+                'message' => $check->message,
+                'short_summary' => $check->shortSummary,
+                'detected_at' => $check->detectedAt,
+                'updated_at' => $check->updatedAt,
+                'snoozed' => $check->activeSnooze !== null,
+            ],
+            $this->client($settings)->applicationHealthChecks($monitorId),
+        );
+    }
+
+    public function maintenancePeriods(OhDearSettings $settings, int $monitorId): array
+    {
+        return array_map(
+            static fn ($period): array => [
+                'id' => $period->id,
+                'monitor_id' => $period->monitorId,
+                'name' => $period->name,
+                'starts_at' => $period->startsAt,
+                'ends_at' => $period->endsAt,
+            ],
+            [...$this->client($settings)->maintenancePeriods($monitorId)],
+        );
+    }
+
+    public function domain(OhDearSettings $settings, int $monitorId): ?array
+    {
+        $domain = $this->client($settings)->domain($monitorId);
+
+        return [
+            'expires_at' => $domain->expiresAt,
+            'registered_at' => $domain->registeredAt,
+            'last_changed_at' => $domain->lastChangedAt,
+            'last_updated_in_rdap_db_at' => $domain->lastUpdatedInRdapDbAt,
+            'domain_statuses' => $domain->domainStatuses,
+        ];
     }
 
     protected function client(OhDearSettings $settings): OhDear

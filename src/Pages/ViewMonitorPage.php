@@ -20,10 +20,10 @@ class ViewMonitorPage extends BaseOhDearPage
 
     public ?string $loadError = null;
 
-    /**
-     * @var array<string, mixed>|null
-     */
-    public ?array $detail = null;
+    public ?int $monitorId = null;
+
+    /** @var array<string, mixed>|null */
+    public ?array $monitorSummary = null;
 
     public static function getRelativeRouteName(Panel $panel): string
     {
@@ -32,6 +32,8 @@ class ViewMonitorPage extends BaseOhDearPage
 
     public function mount(int $monitor): void
     {
+        $this->monitorId = $monitor;
+
         $settings = $this->settings();
 
         if (! $settings->isConfigured()) {
@@ -41,8 +43,8 @@ class ViewMonitorPage extends BaseOhDearPage
         }
 
         try {
-            $this->detail = $this->dataService()
-                ->getMonitorDetail($settings, $monitor)
+            $this->monitorSummary = $this->dataService()
+                ->getMonitor($settings, $monitor)
                 ->toArray();
         } catch (MonitorOutOfScopeException) {
             abort(404);
@@ -53,7 +55,7 @@ class ViewMonitorPage extends BaseOhDearPage
 
     public function getTitle(): string
     {
-        return $this->detail['monitor']['display_name'] ?? parent::getTitle();
+        return $this->monitorSummary['display_name'] ?? parent::getTitle();
     }
 
     /**
@@ -65,6 +67,28 @@ class ViewMonitorPage extends BaseOhDearPage
             OverviewPage::getUrl() => 'Oh Dear',
             MonitorsPage::getUrl() => 'Monitors',
             $this->getTitle(),
+        ];
+    }
+
+    /**
+     * @return array<int, class-string>
+     */
+    protected function getHeaderWidgets(): array
+    {
+        if ($this->requiresSetup || $this->loadError || $this->monitorId === null) {
+            return [];
+        }
+
+        return $this->settings()->monitorWidgets;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function getWidgetData(): array
+    {
+        return [
+            'monitorId' => $this->monitorId,
         ];
     }
 }

@@ -7,8 +7,13 @@ use Illuminate\Support\Collection;
 use Throwable;
 use Ziming\FilamentOhDear\Exceptions\MonitorOutOfScopeException;
 use Ziming\FilamentOhDear\Repositories\OhDearDataRepository;
+use Ziming\FilamentOhDear\ViewModels\BrokenLinkViewModel;
+use Ziming\FilamentOhDear\ViewModels\CertificateHealthViewModel;
+use Ziming\FilamentOhDear\ViewModels\CheckSummaryViewModel;
+use Ziming\FilamentOhDear\ViewModels\DowntimePeriodViewModel;
 use Ziming\FilamentOhDear\ViewModels\MonitorDetailViewModel;
 use Ziming\FilamentOhDear\ViewModels\MonitorViewModel;
+use Ziming\FilamentOhDear\ViewModels\PerformanceMetricViewModel;
 
 class OhDearDataService
 {
@@ -61,7 +66,145 @@ class OhDearDataService
             'monitors_with_active_issues' => $monitors->filter(fn (MonitorViewModel $monitor): bool => $monitor->hasIssues())->count(),
             'certificate_issues' => $monitors->filter(fn (MonitorViewModel $monitor): bool => $monitor->hasCertificateIssues())->count(),
             'needs_attention' => $needsAttention->map(fn (MonitorViewModel $monitor): array => $monitor->toArray())->all(),
+            'by_type' => $monitors
+                ->groupBy(fn (MonitorViewModel $monitor): string => $monitor->typeLabel())
+                ->map(static fn (Collection $group): int => $group->count())
+                ->sortKeys()
+                ->all(),
+            'by_group' => $monitors
+                ->groupBy(fn (MonitorViewModel $monitor): string => $monitor->groupLabel())
+                ->map(static fn (Collection $group): array => [
+                    'total' => $group->count(),
+                    'healthy' => $group->filter(fn (MonitorViewModel $monitor): bool => $monitor->isHealthy())->count(),
+                    'issues' => $group->filter(fn (MonitorViewModel $monitor): bool => $monitor->needsAttention())->count(),
+                ])
+                ->sortKeys()
+                ->all(),
         ];
+    }
+
+    /**
+     * @return array<int, CheckSummaryViewModel>
+     */
+    public function loadCheckSummariesForMonitor(OhDearSettings $settings, MonitorViewModel $monitor): array
+    {
+        $summaries = [];
+
+        foreach ($this->detailCheckTypes($monitor) as $type) {
+            try {
+                $summaries[] = $this->repository->checkSummary($settings, $monitor->id, $type);
+            } catch (Throwable) {
+                if ($fallback = $monitor->check($type)) {
+                    $summaries[] = $fallback;
+                }
+            }
+        }
+
+        return $summaries;
+    }
+
+    /**
+     * @return array<int, PerformanceMetricViewModel>
+     */
+    public function loadPerformanceMetricsForMonitor(OhDearSettings $settings, MonitorViewModel $monitor): array
+    {
+        if (! $monitor->supportsPerformanceMetrics) {
+            return [];
+        }
+
+        return $this->repository->performanceMetrics(
+            $settings,
+            $monitor->id,
+            $monitor->type,
+            CarbonImmutable::now()->subDay(),
+            CarbonImmutable::now(),
+        );
+    }
+
+    public function loadCertificateHealthForMonitor(OhDearSettings $settings, MonitorViewModel $monitor): ?CertificateHealthViewModel
+    {
+        if (! $monitor->supportsCertificateHealth) {
+            return null;
+        }
+
+        return $this->repository->certificateHealth($settings, $monitor->id);
+    }
+
+    /**
+     * @return array<int, BrokenLinkViewModel>
+     */
+    public function loadBrokenLinksForMonitor(OhDearSettings $settings, MonitorViewModel $monitor): array
+    {
+        if (! $monitor->supportsBrokenLinks) {
+            return [];
+        }
+
+        return $this->repository->brokenLinks($settings, $monitor->id);
+    }
+
+    /**
+     * @return array<int, DowntimePeriodViewModel>
+     */
+    public function loadDowntimeForMonitor(OhDearSettings $settings, MonitorViewModel $monitor, int $days = 30): array
+    {
+        return $this->repository->downtime(
+            $settings,
+            $monitor->id,
+            CarbonImmutable::now()->subDays($days),
+            CarbonImmutable::now(),
+        );
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public function loadMixedContentForMonitor(OhDearSettings $settings, MonitorViewModel $monitor): array
+    {
+        if ($monitor->type !== 'http') {
+            return [];
+        }
+
+        return $this->repository->mixedContent($settings, $monitor->id);
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    public function loadLatestLighthouseReportForMonitor(OhDearSettings $settings, MonitorViewModel $monitor): ?array
+    {
+        if ($monitor->type !== 'http') {
+            return null;
+        }
+
+        return $this->repository->latestLighthouseReport($settings, $monitor->id);
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public function loadApplicationHealthChecksForMonitor(OhDearSettings $settings, MonitorViewModel $monitor): array
+    {
+        return $this->repository->applicationHealthChecks($settings, $monitor->id);
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public function loadMaintenancePeriodsForMonitor(OhDearSettings $settings, MonitorViewModel $monitor): array
+    {
+        return $this->repository->maintenancePeriods($settings, $monitor->id);
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    public function loadDomainForMonitor(OhDearSettings $settings, MonitorViewModel $monitor): ?array
+    {
+        if ($monitor->type !== 'http') {
+            return null;
+        }
+
+        return $this->repository->domain($settings, $monitor->id);
     }
 
     public function getMonitorDetail(OhDearSettings $settings, int $monitorId): MonitorDetailViewModel

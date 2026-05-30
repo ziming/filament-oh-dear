@@ -105,6 +105,56 @@ class CachedOhDearDataRepository implements OhDearDataRepository
         );
     }
 
+    public function mixedContent(OhDearSettings $settings, int $monitorId): array
+    {
+        return $this->remember(
+            $settings,
+            'mixed-content',
+            [$monitorId],
+            fn (): array => $this->repository->mixedContent($settings, $monitorId),
+        );
+    }
+
+    public function latestLighthouseReport(OhDearSettings $settings, int $monitorId): ?array
+    {
+        return $this->remember(
+            $settings,
+            'lighthouse-latest',
+            [$monitorId],
+            fn (): ?array => $this->repository->latestLighthouseReport($settings, $monitorId),
+        );
+    }
+
+    public function applicationHealthChecks(OhDearSettings $settings, int $monitorId): array
+    {
+        return $this->remember(
+            $settings,
+            'application-health-checks',
+            [$monitorId],
+            fn (): array => $this->repository->applicationHealthChecks($settings, $monitorId),
+        );
+    }
+
+    public function maintenancePeriods(OhDearSettings $settings, int $monitorId): array
+    {
+        return $this->remember(
+            $settings,
+            'maintenance-periods',
+            [$monitorId],
+            fn (): array => $this->repository->maintenancePeriods($settings, $monitorId),
+        );
+    }
+
+    public function domain(OhDearSettings $settings, int $monitorId): ?array
+    {
+        return $this->remember(
+            $settings,
+            'domain',
+            [$monitorId],
+            fn (): ?array => $this->repository->domain($settings, $monitorId),
+        );
+    }
+
     /**
      * @param  array<int, mixed>  $arguments
      */

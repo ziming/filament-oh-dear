@@ -18,9 +18,10 @@ https://ohdear.app/?via=filament-oh-dear
 
 ## Features
 
-- `Overview` page with scoped monitor stats and a short needs-attention list
+- `Overview` page composed of pluggable widgets — stats, needs-attention list, monitors-by-group breakdown
 - `Monitors` page powered by Filament custom table data
-- Hidden `Monitor details` page with check summaries, metrics, certificate data, broken links, and recent downtime
+- Hidden `Monitor details` page composed of pluggable per-monitor widgets: summary, check summaries, latency chart, certificate health, broken links, downtime, mixed content, latest Lighthouse report, application health checks, maintenance periods, domain info
+- Add, remove, or replace any widget on either page via the plugin fluent API or package config
 - Package config defaults with per-panel plugin overrides
 - `php artisan filament-oh-dear:verify` for connection checks
 
@@ -82,6 +83,73 @@ FilamentOhDearPlugin::make()
 ```
 
 Precedence is always `plugin override > package config`.
+
+## Configuring widgets
+
+Both the `Overview` and `Monitor details` pages render a list of Filament widgets
+that you can freely mix and match. Defaults come from
+`Ziming\FilamentOhDear\Support\OhDearSettings::defaultOverviewWidgets()` and
+`defaultMonitorWidgets()`.
+
+```php
+use Ziming\FilamentOhDear\FilamentOhDearPlugin;
+use Ziming\FilamentOhDear\Widgets\Monitor\ApplicationHealthChecksWidget;
+use Ziming\FilamentOhDear\Widgets\Monitor\BrokenLinksWidget;
+use Ziming\FilamentOhDear\Widgets\Monitor\DomainInfoWidget;
+use Ziming\FilamentOhDear\Widgets\Monitor\LighthouseReportWidget;
+use Ziming\FilamentOhDear\Widgets\Monitor\MaintenancePeriodsWidget;
+use Ziming\FilamentOhDear\Widgets\Monitor\MixedContentWidget;
+use Ziming\FilamentOhDear\Widgets\Overview\MonitorsByGroupWidget;
+use Ziming\FilamentOhDear\Widgets\Overview\MonitorsByTypeWidget;
+
+FilamentOhDearPlugin::make()
+    // Append additional widgets to the defaults
+    ->addOverviewWidgets([
+        MonitorsByTypeWidget::class,
+        MonitorsByGroupWidget::class,
+    ])
+    ->addMonitorWidgets([
+        MixedContentWidget::class,
+        LighthouseReportWidget::class,
+        ApplicationHealthChecksWidget::class,
+        MaintenancePeriodsWidget::class,
+        DomainInfoWidget::class,
+    ])
+    // Or drop one you don't want
+    ->removeMonitorWidgets(BrokenLinksWidget::class)
+    // Or replace the entire list outright
+    // ->overviewWidgets([OverviewStatsWidget::class])
+    // ->monitorWidgets([MonitorSummaryWidget::class])
+;
+```
+
+You can also point the package at your own widget classes — anything that
+extends `BaseMonitorWidget` (with a public `int $monitorId` property) or any
+Filament widget accepting an `overview` array prop will work.
+
+### Available widgets
+
+Overview (`Ziming\FilamentOhDear\Widgets\Overview\…` and
+`Ziming\FilamentOhDear\Widgets\OverviewStatsWidget`):
+
+- `OverviewStatsWidget` – totals and active issue counts
+- `NeedsAttentionWidget` – list of monitors needing attention
+- `MonitorsByGroupWidget` – healthy / issue breakdown per group
+- `MonitorsByTypeWidget` – stat tiles per monitor type
+
+Monitor (`Ziming\FilamentOhDear\Widgets\Monitor\…`):
+
+- `MonitorSummaryWidget` – basic monitor info and status
+- `CheckSummariesWidget` – per-check summaries
+- `LatencyChartWidget` – 24-hour latency sparkline
+- `CertificateHealthWidget` – TLS certificate details and checks
+- `BrokenLinksWidget` – broken link findings
+- `DowntimeWidget` – recent downtime periods
+- `MixedContentWidget` – mixed-content findings (HTTPS pages loading HTTP assets)
+- `LighthouseReportWidget` – latest Lighthouse scores and web vitals
+- `ApplicationHealthChecksWidget` – application-reported health checks
+- `MaintenancePeriodsWidget` – configured maintenance windows
+- `DomainInfoWidget` – WHOIS / RDAP snapshot for the domain
 
 ## Verify Command
 

@@ -41,4 +41,29 @@ interface OhDearDataRepository
      * @return array<int, DowntimePeriodViewModel>
      */
     public function downtime(OhDearSettings $settings, int $monitorId, CarbonInterface $start, CarbonInterface $end): array;
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public function mixedContent(OhDearSettings $settings, int $monitorId): array;
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    public function latestLighthouseReport(OhDearSettings $settings, int $monitorId): ?array;
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public function applicationHealthChecks(OhDearSettings $settings, int $monitorId): array;
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public function maintenancePeriods(OhDearSettings $settings, int $monitorId): array;
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    public function domain(OhDearSettings $settings, int $monitorId): ?array;
 }
