@@ -8,7 +8,7 @@ use Ziming\FilamentOhDear\ViewModels\MonitorViewModel;
 
 class LighthouseReportWidget extends BaseMonitorWidget
 {
-    /** @var view-string */
+    // @phpstan-ignore-next-line
     protected string $view = 'filament-oh-dear::widgets.monitor.lighthouse-report';
 
     /** @var array<string, mixed>|null */

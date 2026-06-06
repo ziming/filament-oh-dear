@@ -8,7 +8,7 @@ use Ziming\FilamentOhDear\ViewModels\MonitorViewModel;
 
 class MonitorSummaryWidget extends BaseMonitorWidget
 {
-    /** @var view-string */
+    // @phpstan-ignore-next-line
     protected string $view = 'filament-oh-dear::widgets.monitor.summary';
 
     protected function loadData(OhDearSettings $settings, OhDearDataService $service, MonitorViewModel $monitor): void

@@ -11,7 +11,7 @@ class MonitorsByGroupWidget extends Widget
     /** @var int | string | array<string, int | null> */
     protected int|string|array $columnSpan = 'full';
 
-    /** @var view-string */
+    // @phpstan-ignore-next-line
     protected string $view = 'filament-oh-dear::widgets.overview.monitors-by-group';
 
     /** @var array<string, mixed> */

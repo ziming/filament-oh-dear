@@ -8,7 +8,7 @@ use Ziming\FilamentOhDear\ViewModels\MonitorViewModel;
 
 class MaintenancePeriodsWidget extends BaseMonitorWidget
 {
-    /** @var view-string */
+    // @phpstan-ignore-next-line
     protected string $view = 'filament-oh-dear::widgets.monitor.maintenance-periods';
 
     /** @var array<int, array<string, mixed>> */
