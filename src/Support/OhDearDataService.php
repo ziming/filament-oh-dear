@@ -286,12 +286,15 @@ class OhDearDataService
     }
 
     /**
-     * @return Collection<int|string, array<string, mixed>>
+     * @return Collection<string, array<string, mixed>>
      */
     public function getMonitorTableRows(OhDearSettings $settings): Collection
     {
         return $this->getScopedMonitors($settings)
-            ->mapWithKeys(fn (MonitorViewModel $monitor): array => [(string) $monitor->id => $monitor->toArray()]);
+            ->mapWithKeys(
+                /** @return array<string, array<string, mixed>> */
+                fn (MonitorViewModel $monitor): array => [(string) $monitor->id => $monitor->toArray()]
+            );
     }
 
     /**

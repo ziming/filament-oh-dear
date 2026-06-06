@@ -9,6 +9,7 @@ use Ziming\FilamentOhDear\ViewModels\MonitorViewModel;
 
 class BrokenLinksWidget extends BaseMonitorWidget
 {
+    /** @var view-string */
     protected string $view = 'filament-oh-dear::widgets.monitor.broken-links';
 
     /** @var array<int, array<string, mixed>> */

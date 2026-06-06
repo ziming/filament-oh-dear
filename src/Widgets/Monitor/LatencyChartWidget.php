@@ -9,6 +9,7 @@ use Ziming\FilamentOhDear\ViewModels\PerformanceMetricViewModel;
 
 class LatencyChartWidget extends BaseMonitorWidget
 {
+    /** @var view-string */
     protected string $view = 'filament-oh-dear::widgets.monitor.latency-chart';
 
     /** @var array<int, array<string, mixed>> */

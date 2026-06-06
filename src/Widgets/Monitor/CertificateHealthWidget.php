@@ -8,6 +8,7 @@ use Ziming\FilamentOhDear\ViewModels\MonitorViewModel;
 
 class CertificateHealthWidget extends BaseMonitorWidget
 {
+    /** @var view-string */
     protected string $view = 'filament-oh-dear::widgets.monitor.certificate-health';
 
     /** @var array<string, mixed>|null */

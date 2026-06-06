@@ -8,6 +8,7 @@ use Ziming\FilamentOhDear\ViewModels\MonitorViewModel;
 
 class DomainInfoWidget extends BaseMonitorWidget
 {
+    /** @var view-string */
     protected string $view = 'filament-oh-dear::widgets.monitor.domain-info';
 
     /** @var array<string, mixed>|null */

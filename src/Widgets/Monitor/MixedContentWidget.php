@@ -8,6 +8,7 @@ use Ziming\FilamentOhDear\ViewModels\MonitorViewModel;
 
 class MixedContentWidget extends BaseMonitorWidget
 {
+    /** @var view-string */
     protected string $view = 'filament-oh-dear::widgets.monitor.mixed-content';
 
     /** @var array<int, array<string, mixed>> */

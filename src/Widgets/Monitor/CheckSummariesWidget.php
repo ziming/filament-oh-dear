@@ -9,6 +9,7 @@ use Ziming\FilamentOhDear\ViewModels\MonitorViewModel;
 
 class CheckSummariesWidget extends BaseMonitorWidget
 {
+    /** @var view-string */
     protected string $view = 'filament-oh-dear::widgets.monitor.check-summaries';
 
     /** @var array<int, array<string, mixed>> */

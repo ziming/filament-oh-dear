@@ -9,6 +9,7 @@ use Ziming\FilamentOhDear\ViewModels\MonitorViewModel;
 
 class DowntimeWidget extends BaseMonitorWidget
 {
+    /** @var view-string */
     protected string $view = 'filament-oh-dear::widgets.monitor.downtime';
 
     /** @var array<int, array<string, mixed>> */
